@@ -1,5 +1,5 @@
 // ============================================================
-// PAC OMNICOM - A satirical Pac-Man parody
+// HOLDING COMPANY - A satirical Pac-Man parody
 // ============================================================
 
 // --- PIXEL PAC-MAN RENDERER ---
@@ -277,7 +277,7 @@ class AudioEngine {
     }
 }
 
-// --- PLAYER (Omnicom O) ---
+// --- PLAYER ---
 class Player {
     constructor(startTileX, startTileY) {
         this.startX = startTileX;
@@ -645,7 +645,7 @@ class Game {
         this.audio = new AudioEngine();
         this.state = STATE_INTRO;
         this.score = 0;
-        this.highScore = parseInt(localStorage.getItem('pacOmnicomHigh') || '0');
+        this.highScore = parseInt(localStorage.getItem('holdingCoHigh') || '0');
         this.lives = 3;
         this.maze = [];
         this.totalDots = 0;
@@ -854,7 +854,7 @@ class Game {
         this.introTimer += dt;
 
         switch (this.introPhase) {
-            case 0: // Show PAC + OMNICOM text
+            case 0: // Show PAC + HOLDING CO text
                 if (this.introTimer > 2.0) {
                     this.introPhase = 1;
                     this.introTimer = 0;
@@ -1062,7 +1062,7 @@ class Game {
         // Update score display
         if (this.score > this.highScore) {
             this.highScore = this.score;
-            localStorage.setItem('pacOmnicomHigh', this.highScore);
+            localStorage.setItem('holdingCoHigh', this.highScore);
         }
         this.updateUI();
     }
@@ -1151,12 +1151,12 @@ class Game {
         const centerY = CANVAS_H / 2;
 
         switch (this.introPhase) {
-            case 0: { // Show OMNICOM text
-                // "OMNICOM" in 8-bit font
+            case 0: { // Show HOLDING CO text
+                // "HOLDING CO" in 8-bit font
                 ctx.fillStyle = '#fff';
                 ctx.font = '28px "Press Start 2P", monospace';
                 ctx.textAlign = 'center';
-                ctx.fillText('OMNICOM', centerX, centerY + 10);
+                ctx.fillText('HOLDING CO', centerX, centerY + 10);
 
                 // "loading..."
                 const dots = '.'.repeat(Math.floor(this.introTimer * 2) % 4);
@@ -1169,11 +1169,11 @@ class Game {
             case 1: { // O morphs to Pac-Man
                 const morphProgress = Math.min(this.introTimer / 1.2, 1);
 
-                // Draw OMNICOM in 8-bit font with O morphing
+                // Draw HOLDING CO in 8-bit font with O morphing
                 ctx.fillStyle = '#fff';
                 ctx.font = '28px "Press Start 2P", monospace';
                 ctx.textAlign = 'center';
-                const text = 'OMNICOM';
+                const text = 'HOLDING CO';
                 const metrics = ctx.measureText(text);
                 const startX = centerX - metrics.width / 2;
 
@@ -1211,7 +1211,7 @@ class Game {
             }
 
             case 2: { // O eats across through MNICOM
-                const fullText = 'OMNICOM';
+                const fullText = 'HOLDING CO';
                 ctx.fillStyle = '#fff';
                 ctx.font = '28px "Press Start 2P", monospace';
                 ctx.textAlign = 'left';
@@ -1261,34 +1261,48 @@ class Game {
             }
 
             case 3: { // Title screen — clean & simple
-                // Animated O Pac-Man + MNICOM in 8-bit font
-                ctx.font = '28px "Press Start 2P", monospace';
+                // "H[O]LDING" on line 1, "COMPANY" on line 2
+                const titleFontSize = 24;
+                ctx.font = titleFontSize + 'px "Press Start 2P", monospace';
                 ctx.textAlign = 'left';
-                const mnicomMetrics = ctx.measureText('MNICOM');
-                const oRadius = 18;
-                const oGap = 6;
-                const totalWidth = oRadius * 2 + oGap + mnicomMetrics.width;
-                const titleStartX = centerX - totalWidth / 2;
+
+                // Measure "H" and "LDING" to position the O pac-man
+                const hMetrics = ctx.measureText('H');
+                const ldingMetrics = ctx.measureText('LDING');
+                const oRadius = 16;
+                const oGap = 4;
+                const line1Width = hMetrics.width + oGap + oRadius * 2 + oGap + ldingMetrics.width;
+                const line1StartX = centerX - line1Width / 2;
+                const line1Y = centerY - 15;
+
+                // Draw "H"
+                ctx.fillStyle = '#fff';
+                ctx.fillText('H', line1StartX, line1Y);
 
                 // Animated O Pac-Man
                 const tMouth = Math.sin(this.tick * 10) * 0.3 + 0.35;
-                const titleOX = titleStartX + oRadius;
-                const titleOY = centerY - 12;
+                const titleOX = line1StartX + hMetrics.width + oGap + oRadius;
+                const titleOY = line1Y - titleFontSize * 0.6;
 
                 drawPixelPacman(ctx, titleOX, titleOY, oRadius, tMouth);
 
-                // "MNICOM" in 8-bit font
+                // Draw "LDING"
                 ctx.fillStyle = '#fff';
-                ctx.font = '28px "Press Start 2P", monospace';
+                ctx.font = titleFontSize + 'px "Press Start 2P", monospace';
                 ctx.textAlign = 'left';
-                ctx.fillText('MNICOM', titleStartX + oRadius * 2 + oGap, centerY + 1);
+                ctx.fillText('LDING', line1StartX + hMetrics.width + oGap + oRadius * 2 + oGap, line1Y);
+
+                // "COMPANY" centered below
+                ctx.font = titleFontSize + 'px "Press Start 2P", monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText('COMPANY', centerX, line1Y + titleFontSize + 12);
 
                 // Blinking "Press any key"
                 if (Math.floor(this.tick * 2.5) % 2) {
                     ctx.fillStyle = '#FFD700';
                     ctx.font = '10px "Press Start 2P", monospace';
                     ctx.textAlign = 'center';
-                    ctx.fillText('PRESS ANY KEY', centerX, centerY + 50);
+                    ctx.fillText('PRESS ANY KEY', centerX, centerY + 65);
                 }
 
                 // Demo animation — O eating dollar signs across the bottom
